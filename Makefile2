@@ -1,0 +1,66 @@
+# Makefile to both initialize the
+# file states and serve as a test
+# bed for the rmake.rb version
+# of Make
+
+initialize:
+	rm -fr movie/bob.txt
+	rm -fr movie/carol.txt
+	rm -fr movie/ted.txt
+	rm -fr movie/alice.txt
+	rm -fr movie
+	rm -fr foobar.txt baxter.txt
+	rm -fr foo.txt bar.txt
+	
+# Make the directory, then
+# touch the files to create
+# proper recreation situation.
+	
+	mkdir movie
+	
+# Should not remake ted
+	
+	touch baxter.txt ; sleep 1
+	touch movie/ted.txt ; sleep 1
+	
+# Remake foo.txt because it
+# is older than carol.txt
+	
+	touch movie/bob.txt ; sleep 1
+	touch foo.txt ; sleep 1
+	touch movie/carol.txt ; sleep 1
+	touch movie/alice.txt ; sleep 1
+	
+# Will make bar.txt because
+# it doesn't exist
+	
+# Will remake foobar.txt
+# because foo.txt and bar.txt
+# are remade (even though
+# foobar.txt is initially
+# the youngest file).
+	
+	touch foobar.txt
+
+# This is the target that should be
+# 'made' to do the basic dependency
+# and update tests.
+
+FOO = foo.txt
+BAR = bar.txt
+FOO_BAR = $(FOO) $(BAR)
+
+FOOBARALL = $(FOO_BAR) movie/ted.txt
+
+foobar.txt : $(FOOBARALL)
+	echo foobar done > foobar.txt
+
+foo.txt: movie/bob.txt movie/carol.txt
+	echo foo done > foo.txt
+
+bar.txt : movie/carol.txt movie/alice.txt
+	echo bar done > bar.txt
+
+BAXTER=baxter.txt
+movie/ted.txt: $(BAXTER)
+	echo ted done > movie/ted.txt
